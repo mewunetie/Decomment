@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include <ctype.h>
 int newline = 0;
-
 enum Statetype {NORMAL, STARTINGCOMMENT, INCOMMENT, ENDINGCOMMENT, STRING, CHAR, BACKSLASHSTRING, BACKSLASHCHAR}; 
 /*----------------------------------------------------------*/
 /* Implement the NORMAL state of the DFA. c is the current
@@ -55,6 +54,7 @@ enum Statetype handleStartingCommentState(int c)
         state = CHAR;
     }
     else {
+        putchar('/');
         putchar(c);
         state = NORMAL;
     }
