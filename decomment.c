@@ -65,12 +65,15 @@ enum Statetype handleInCommentState(int c)
         state = ENDINGCOMMENT;
     } else if (c == '\n') {
         newline += 1;
+        putchar(c);
         state = INCOMMENT;
-    } else if (c == EOF) {
+    /* } 
+     else if (c == EOF) {
+        how to return exit failure and print error?
         printf ("Error: line " + newline);
         printf (": unterminated comment\n");
-        return EXIT_FAILURE; 
-    } else {
+        return EXIT_FAILURE; */
+     } else {
         state = INCOMMENT;
     }
 return state;
