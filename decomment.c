@@ -148,7 +148,7 @@ return state;
 /* Implement the BACKSLASHCAR state of the DFA. c is the current
     DFA character. Possibly write c, as specified by the DFA.
     Return the next state. */
-enum Statetype handleBackSlashChartState(int c)
+enum Statetype handleBackSlashCharState(int c)
 {
     enum Statetype state;
     if (c == '\\') {
