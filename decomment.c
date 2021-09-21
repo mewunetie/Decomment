@@ -46,7 +46,15 @@ enum Statetype handleStartingCommentState(int c)
     } else if (c == '*') {
         putchar(' ');
         state = INCOMMENT;
-    } else {
+    } else if ('"') {
+        putchar(c);
+        state = STRING;
+    }
+    else if ('\'') {
+        putchar(c);
+        state = CHAR;
+    }
+    else {
         putchar(c);
         state = NORMAL;
     }
@@ -106,7 +114,13 @@ enum Statetype handleStringState(int c)
     if (c == '"') {
         putchar(c);
         state = NORMAL;
-    }  else {
+    }  else if (c == '\n') {
+         putchar(c);
+        state = NORMAL;
+    } else if (c == '\\') {
+        putchar(c);
+        state = STRING;
+    } else {
         putchar(c);
         state = STRING;
     }
@@ -123,6 +137,12 @@ enum Statetype handleCharState(int c)
     if (c == '\'') {
         putchar(c);
         state = NORMAL;
+    } else if (c == '\n') {
+         putchar(c);
+        state = NORMAL;
+    } else if (c == '\\') {
+        putchar(c);
+        state = CHAR;
     } else {
         putchar(c);
         state = CHAR;
