@@ -44,7 +44,7 @@ enum Statetype handleStartingCommentState(int c)
         putchar(c);
         state = STARTINGCOMMENT;
     } else if (c == '*') {
-        putchar(' '); // inserts space
+        putchar(' ');
         state = INCOMMENT;
     } else {
         putchar(c);
@@ -69,7 +69,7 @@ enum Statetype handleInCommentState(int c)
     } else if (c == EOF) {
         printf ("Error: line " + newline);
         printf (": unterminated comment\n");
-        return EXIT_FAILURE; // check if this is correct
+        return EXIT_FAILURE; 
     } else {
         state = INCOMMENT;
     }
