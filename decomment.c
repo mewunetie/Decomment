@@ -85,7 +85,7 @@ enum Statetype handleInCommentState(int c)
     if (c == '*') {
         state = ENDINGCOMMENT;
     } else if (c == '\n') {
-        whileInComment += 1;
+        newline +=1;
         putchar('\n');
         state = INCOMMENT;
      } else {
@@ -105,7 +105,7 @@ enum Statetype handleEndingCommentState(int c)
     } else if (c == '*') {
         state = ENDINGCOMMENT;
     } else if (c == '\n') {
-        whileInComment += 1;
+        newline +=1;
         putchar('\n');
         state = INCOMMENT;
     } else {
