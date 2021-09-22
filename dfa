@@ -1,17 +1,17 @@
-Normal (start state): accept state (print)
+1. Normal (start state): accept state (print)
 • / : Starting comment
 • " : String
 • ' : Char
 • Any other char : Normal
 
-Starting comment: accept state (print)
+2. Starting comment: accept state (print)
 • / : Starting comment
 • * : In a comment
 • " : String
 • ' : Char
 • Any other char : Normal (start state)
 
-In a comment: reject state 
+3. In a comment: reject state 
 • * : Ending comment (don't print)
 • Newline: In a comment (print)
 • Any other char: In a comment (don't print)
@@ -22,20 +22,20 @@ Ending comment: reject state (don't print)
 • Any other char : In a comment
 
 
-String: accept state (print)
+4. String: accept state (print)
 • " : Normal (starting state)
 • \ : Back slash string
 • Any other char : String
 
-Char: accept state (print)
+5. Char: accept state (print)
 • ' : Normal (starting state)
 • \ : Back slash char
 • Any other char : Char
 
-Back slash string: accept state
+6. Back slash string: accept state
 • \ : Back slash string
 • Any other char : String
 
-Back slash char: accept state
+7. Back slash char: accept state
 • \ : Back slash char
 • Any other char : Char
