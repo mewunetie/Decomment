@@ -6,7 +6,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 int newline = 1;
-int whileInComment = 0;
+int startCommentLine = 0;
 enum Statetype {NORMAL, STARTINGCOMMENT, INCOMMENT, ENDINGCOMMENT, STRING, CHAR, BACKSLASHSTRING, BACKSLASHCHAR}; 
 /*----------------------------------------------------------*/
 /* Implement the NORMAL state of the DFA. c is the current
@@ -49,7 +49,7 @@ enum Statetype handleStartingCommentState(int c)
         putchar(c);
         state = STARTINGCOMMENT;
     } else if (c == '*') {
-        newline += whileInComment;
+        startCommentLine = newline;
         putchar(' ');
         state = INCOMMENT;
     } else if (c == '"') {
@@ -219,7 +219,7 @@ int main(void)
             putchar('/');
         }
         if (state == ENDINGCOMMENT || state == INCOMMENT) {
-            fprintf(stderr, "Error: line %d", newline);
+            fprintf(stderr, "Error: line %d", startCommentLine);
             fprintf(stderr, ": unterminated comment\n");
             return EXIT_FAILURE;
         }
