@@ -1,0 +1,41 @@
+Normal (start state): accept state (print)
+• / : Starting comment
+• " : String
+• ' : Char
+• Any other char : Normal
+
+Starting comment: accept state (print)
+• / : Starting comment
+• * : In a comment
+• " : String
+• ' : Char
+• Any other char : Normal (start state)
+
+In a comment: reject state 
+• * : Ending comment (don't print)
+• Newline: In a comment (print)
+• Any other char: In a comment (don't print)
+
+Ending comment: reject state (don't print)
+• / : Normal
+• * : Ending comment
+• Any other char : In a comment
+
+
+String: accept state (print)
+• " : Normal (starting state)
+• \ : Back slash string
+• Any other char : String
+
+Char: accept state (print)
+• ' : Normal (starting state)
+• \ : Back slash char
+• Any other char : Char
+
+Back slash string: accept state
+• \ : Back slash string
+• Any other char : String
+
+Back slash char: accept state
+• \ : Back slash char
+• Any other char : Char
