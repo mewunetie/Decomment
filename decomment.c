@@ -4,7 +4,8 @@
 /*------------------------------------------------------------*/
 #include <stdio.h>
 #include <ctype.h>
-int newline = 0;
+#include <stdlib.h>
+int newline = 1;
 enum Statetype {NORMAL, STARTINGCOMMENT, INCOMMENT, ENDINGCOMMENT, STRING, CHAR, BACKSLASHSTRING, BACKSLASHCHAR}; 
 /*----------------------------------------------------------*/
 /* Implement the NORMAL state of the DFA. c is the current
@@ -23,9 +24,13 @@ enum Statetype handleNormalState(int c)
         state = STARTINGCOMMENT;
     }
         else if (c == '"') {
-         putchar(c);
+        putchar(c);
         state = STRING;
-    }   else {
+    }   else if (c == '\n') {
+        putchar('\n');
+        newline +=1;
+        state = NORMAL;
+    } else {
         putchar(c);
         state = NORMAL;
     }
@@ -45,13 +50,19 @@ enum Statetype handleStartingCommentState(int c)
     } else if (c == '*') {
         putchar(' ');
         state = INCOMMENT;
-    } else if ('"') {
+    } else if (c == '"') {
+        putchar('/');
         putchar(c);
         state = STRING;
-    }
-    else if ('\'') {
+    } else if (c == '\'') {
+        putchar('/');
         putchar(c);
         state = CHAR;
+    } else if ('\n') {
+        newline += 1;
+        putchar('/');
+        putchar(c);
+        state = NORMAL;
     }
     else {
         putchar('/');
@@ -67,20 +78,13 @@ return state;
     print error message. Otherwise, return the next state. */
 enum Statetype handleInCommentState(int c)
 {
-    int EXIT_FAILURE = 1;
+    
     enum Statetype state;
     if (c == '*') {
         state = ENDINGCOMMENT;
     } else if (c == '\n') {
-        newline += 1;
-        putchar(c);
+        putchar('\n');
         state = INCOMMENT;
-    /* } 
-     else if (c == EOF) {
-        how to return exit failure and print error?
-        printf ("Error: line " + newline);
-        printf (": unterminated comment\n");
-        return EXIT_FAILURE; */
      } else {
         state = INCOMMENT;
     }
@@ -89,8 +93,7 @@ return state;
 
 /*----------------------------------------------------------*/
 /* Implement the ENDINGCOMMENT state of the DFA. c is the current
-    DFA character. Possibly write c, as specified by the DFA.
-    Return the next state. */
+    DFA character. Return to normal if comment ends. */
 enum Statetype handleEndingCommentState(int c)
 {
     enum Statetype state;
@@ -98,6 +101,9 @@ enum Statetype handleEndingCommentState(int c)
         state = NORMAL;
     } else if (c == '*') {
         state = ENDINGCOMMENT;
+    } else if (c == '\n') {
+        putchar('\n');
+        state = INCOMMENT;
     } else {
         state = INCOMMENT;
     }
@@ -105,9 +111,7 @@ return state;
 }
 
 /*----------------------------------------------------------*/
-/* Implement the STRING state of the DFA. c is the current
-    DFA character. Possibly write c, as specified by the DFA.
-    Return the next state. */
+/* Implement the STRING state of the DFA. Prints everything in string. */
 enum Statetype handleStringState(int c)
 {
     enum Statetype state;
@@ -116,48 +120,8 @@ enum Statetype handleStringState(int c)
         state = NORMAL;
     }  else if (c == '\n') {
          putchar(c);
-        state = NORMAL;
-    } else if (c == '\\') {
-        putchar(c);
         state = STRING;
-    } else {
-        putchar(c);
-        state = STRING;
-    }
-return state;
-}
-
-/*----------------------------------------------------------*/
-/* Implement the CHAR state of the DFA. c is the current
-    DFA character. Possibly write c, as specified by the DFA.
-    Return the next state. */
-enum Statetype handleCharState(int c) 
-{
-    enum Statetype state;
-    if (c == '\'') {
-        putchar(c);
-        state = NORMAL;
-    } else if (c == '\n') {
-         putchar(c);
-        state = NORMAL;
     } else if (c == '\\') {
-        putchar(c);
-        state = CHAR;
-    } else {
-        putchar(c);
-        state = CHAR;
-    }
-return state;
-}
-
-/*----------------------------------------------------------*/
-/* Implement the BACKSLASHSTRING state of the DFA. c is the current
-    DFA character. Possibly write c, as specified by the DFA.
-    Return the next state. */
-enum Statetype handleBackSlashStringState(int c)
-{
-    enum Statetype state; 
-    if (c == '\\') {
         putchar(c);
         state = BACKSLASHSTRING;
     } else {
@@ -168,19 +132,45 @@ return state;
 }
 
 /*----------------------------------------------------------*/
-/* Implement the BACKSLASHCAR state of the DFA. c is the current
-    DFA character. Possibly write c, as specified by the DFA.
-    Return the next state. */
-enum Statetype handleBackSlashCharState(int c)
+/* Implement the CHAR state of the DFA. Prints everything in char literal. */
+enum Statetype handleCharState(int c) 
 {
     enum Statetype state;
-    if (c == '\\') {
+    if (c == '\'') {
+        putchar(c);
+        state = NORMAL;
+    } else if (c == '\n') {
+         putchar(c);
+        state = CHAR;
+    } else if (c == '\\') {
         putchar(c);
         state = BACKSLASHCHAR;
     } else {
         putchar(c);
         state = CHAR;
     }
+return state;
+}
+
+/*----------------------------------------------------------*/
+/* Implement the BACKSLASHSTRING state of the DFA. Prints next 
+char regardless of what it is. */
+enum Statetype handleBackSlashStringState(int c)
+{
+    enum Statetype state; 
+        putchar(c);
+        state = STRING;
+return state;
+}
+
+/*----------------------------------------------------------*/
+/* Implement the BACKSLASHCAR state of the DFA. Prints next 
+char regardless of what it is. */
+enum Statetype handleBackSlashCharState(int c)
+{
+    enum Statetype state;
+        putchar(c);
+        state = CHAR;
 return state;
 }
 
@@ -221,5 +211,14 @@ int main(void)
                 break;
         }
     }
+        if (state == STARTINGCOMMENT) {
+            putchar('/');
+        }
+        if (state == ENDINGCOMMENT || state == INCOMMENT) {
+            fprintf(stderr, "Error: line %d", newline);
+            fprintf(stderr, ": unterminated comment\n");
+            return EXIT_FAILURE;
+        }
+
     return 0;
 }
