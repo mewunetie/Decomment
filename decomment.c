@@ -5,8 +5,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
-int newline = 1;
-int startCommentLine = 0;
+
 enum Statetype {NORMAL, STARTINGCOMMENT, INCOMMENT, ENDINGCOMMENT, STRING, CHAR, BACKSLASHSTRING, BACKSLASHCHAR}; 
 /*----------------------------------------------------------*/
 /* Implement the NORMAL state of the DFA. c is the current
@@ -29,9 +28,8 @@ enum Statetype handleNormalState(int c)
         state = STRING;
     }   else if (c == '\n') {
         putchar('\n');
-        newline +=1;
         state = NORMAL;
-    } else {
+    }   else {
         putchar(c);
         state = NORMAL;
     }
@@ -49,10 +47,9 @@ enum Statetype handleStartingCommentState(int c, int *commentStarted)
         putchar(c);
         state = STARTINGCOMMENT;
     } else if (c == '*') {
-        startCommentLine = newline;
         putchar(' ');
         state = INCOMMENT;
-        *commentStarted = 1
+        *commentStarted = 1;
     } else if (c == '"') {
         putchar('/');
         putchar(c);
@@ -62,7 +59,6 @@ enum Statetype handleStartingCommentState(int c, int *commentStarted)
         putchar(c);
         state = CHAR;
     } else if ('\n') {
-        newline += 1;
         putchar('/');
         putchar(c);
         state = NORMAL;
@@ -86,7 +82,6 @@ enum Statetype handleInCommentState(int c)
     if (c == '*') {
         state = ENDINGCOMMENT;
     } else if (c == '\n') {
-        newline +=1;
         putchar('\n');
         state = INCOMMENT;
      } else {
@@ -106,7 +101,6 @@ enum Statetype handleEndingCommentState(int c)
     } else if (c == '*') {
         state = ENDINGCOMMENT;
     } else if (c == '\n') {
-        newline +=1;
         putchar('\n');
         state = INCOMMENT;
     } else {
@@ -188,27 +182,25 @@ int main(void)
     int c;
     /* Use a DFA approach. state indicates the DFA state. */
     enum Statetype state = NORMAL;
-    int numLines = 1
-    int commentLine = 0
+    int numLines = 1;
+    int commentLine = 0;
+    int commentStarted;
     while ((c = getchar()) != EOF) {
 
         if (c == '\n') {
             numLines++;
         }
 
+        commentStarted = 0;
         switch (state) {
+
             case NORMAL:
                 state = handleNormalState(c);
                 break;
             case STARTINGCOMMENT:
-                int commentStarted = 0;
                 state = handleStartingCommentState(c, &commentStarted);
-                if (commentStarted) {
-                    commentLine = numLines;
-                }
                 break;
             case INCOMMENT:
-                commentLine = numLines;
                 state = handleInCommentState(c);
                 break;
             case ENDINGCOMMENT:
@@ -227,6 +219,8 @@ int main(void)
                 state = handleBackSlashCharState(c);
                 break;
         }
+
+        if (commentStarted) commentLine = numLines;
     }
         if (state == STARTINGCOMMENT) {
             putchar('/');
