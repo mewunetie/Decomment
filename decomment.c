@@ -42,7 +42,7 @@ enum Statetype handleNormalState(int c)
 /* Implement the STARTINGCOMMENT state of the DFA. Check whether 
     or not the chars are starting a comment, as specified by the DFA.
     Return the next state. */
-enum Statetype handleStartingCommentState(int c)
+enum Statetype handleStartingCommentState(int c, int *commentStarted)
 {
     enum Statetype state;
     if (c == '/') {
@@ -52,6 +52,7 @@ enum Statetype handleStartingCommentState(int c)
         startCommentLine = newline;
         putchar(' ');
         state = INCOMMENT;
+        *commentStarted = 1
     } else if (c == '"') {
         putchar('/');
         putchar(c);
@@ -144,7 +145,7 @@ enum Statetype handleCharState(int c)
         putchar(c);
         state = NORMAL;
     } else if (c == '\n') {
-         putchar(c);
+        putchar(c);
         state = CHAR;
     } else if (c == '\\') {
         putchar(c);
@@ -187,15 +188,27 @@ int main(void)
     int c;
     /* Use a DFA approach. state indicates the DFA state. */
     enum Statetype state = NORMAL;
+    int numLines = 1
+    int commentLine = 0
     while ((c = getchar()) != EOF) {
+
+        if (c == '\n') {
+            numLines++;
+        }
+
         switch (state) {
             case NORMAL:
                 state = handleNormalState(c);
                 break;
             case STARTINGCOMMENT:
-                state = handleStartingCommentState(c);
+                int commentStarted = 0;
+                state = handleStartingCommentState(c, &commentStarted);
+                if (commentStarted) {
+                    commentLine = numLines;
+                }
                 break;
             case INCOMMENT:
+                commentLine = numLines;
                 state = handleInCommentState(c);
                 break;
             case ENDINGCOMMENT:
@@ -219,7 +232,7 @@ int main(void)
             putchar('/');
         }
         if (state == ENDINGCOMMENT || state == INCOMMENT) {
-            fprintf(stderr, "Error: line %d", startCommentLine);
+            fprintf(stderr, "Error: line %d", commentLine);
             fprintf(stderr, ": unterminated comment\n");
             return EXIT_FAILURE;
         }
