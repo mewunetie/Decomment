@@ -6,6 +6,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 int newline = 1;
+int whileInComment = 0;
 enum Statetype {NORMAL, STARTINGCOMMENT, INCOMMENT, ENDINGCOMMENT, STRING, CHAR, BACKSLASHSTRING, BACKSLASHCHAR}; 
 /*----------------------------------------------------------*/
 /* Implement the NORMAL state of the DFA. c is the current
@@ -48,6 +49,7 @@ enum Statetype handleStartingCommentState(int c)
         putchar(c);
         state = STARTINGCOMMENT;
     } else if (c == '*') {
+        newline += whileInComment;
         putchar(' ');
         state = INCOMMENT;
     } else if (c == '"') {
@@ -83,6 +85,7 @@ enum Statetype handleInCommentState(int c)
     if (c == '*') {
         state = ENDINGCOMMENT;
     } else if (c == '\n') {
+        whileInComment += 1;
         putchar('\n');
         state = INCOMMENT;
      } else {
